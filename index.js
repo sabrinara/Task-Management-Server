@@ -6,11 +6,10 @@ require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 // midware
-// app.use(cors({
-//     origin:['http://localhost:5173'],
-//     credentials: true
-// }));
-app.use(cors());
+app.use(cors({
+    origin:['http://localhost:5173','https://task-management0-react.netlify.app'],
+    credentials: true
+}));
 app.use(express.json());
 
 
