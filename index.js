@@ -3,11 +3,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // midware
 app.use(cors({
-    origin:['http://localhost:5173','https://task-management0-react.netlify.app'],
+    origin:[
+        LOCAL_CLIENT,
+        CLIENT
+    ],
     credentials: true
 }));
 app.use(express.json());
@@ -61,24 +64,53 @@ async function run() {
         })
 
         //update task by status
-        app.put('/tasks/:id', async (req, res) => {
+        // app.put('/tasks/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const { status } = req.body;
+        //     const query = { _id: new ObjectId(id) };
+        //     const update = { $set: { status } };
+        //     try {
+        //         const result = await taskCollection.updateOne(query, update);
+        //         res.send(result);
+        //     } catch (error) {
+        //         console.error(error);
+        //         res.status(500).json({ error: "Internal server error" });
+        //     }
+        // })
+
+        //update status of task by id using patch
+        // app.patch('/tasks/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const { status } = req.body;
+        //     const query = { _id: new ObjectId(id) };
+        //     const update = { $set: { status } };
+        //     const result = await taskCollection.updateOne(query, update);
+        //     // const updatedStatus = await taskCollection.findOneAndUpdate(
+        //     //     { _id: new ObjectId(id) },
+        //     //     { $set: { role } },
+        //     //     { returnOriginal: false } // Return the updated document
+        //     //   );
+        //     res.send(result);
+        // })
+
+        app.patch('/tasks/:id', async (req, res) => {
             const id = req.params.id;
             const { status } = req.body;
-            const query = { _id: id };
-            const update = { $set: { status } };
-            try {
-                const result = await taskCollection.updateOne(query, update);
-                res.send(result);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: "Internal server error" });
-            }
-        })
+          
+            const updatedTask = await taskCollection.findOneAndUpdate(
+              { _id: new ObjectId(id) },
+              { $set: { status } },
+              { returnOriginal: false }
+            );
+          
+            res.send(updatedTask.value);
+          });
 
-        //delete task
+
+        //delete task by id
         app.delete('/tasks/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: id };
+            const query = { _id: new ObjectId(id) };
             const result = await taskCollection.deleteOne(query);
             res.send(result);
         })
