@@ -8,8 +8,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // midware
 app.use(cors({
     origin:[
-        LOCAL_CLIENT,
-        CLIENT
+        process.env.LOCAL_CLIENT,
+        process.env.CLIENT
     ],
     credentials: true
 }));
