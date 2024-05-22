@@ -63,49 +63,26 @@ async function run() {
             }
         })
 
-        //update task by status
-        // app.put('/tasks/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const { status } = req.body;
-        //     const query = { _id: new ObjectId(id) };
-        //     const update = { $set: { status } };
-        //     try {
-        //         const result = await taskCollection.updateOne(query, update);
-        //         res.send(result);
-        //     } catch (error) {
-        //         console.error(error);
-        //         res.status(500).json({ error: "Internal server error" });
-        //     }
-        // })
-
-        //update status of task by id using patch
-        // app.patch('/tasks/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const { status } = req.body;
-        //     const query = { _id: new ObjectId(id) };
-        //     const update = { $set: { status } };
-        //     const result = await taskCollection.updateOne(query, update);
-        //     // const updatedStatus = await taskCollection.findOneAndUpdate(
-        //     //     { _id: new ObjectId(id) },
-        //     //     { $set: { role } },
-        //     //     { returnOriginal: false } // Return the updated document
-        //     //   );
-        //     res.send(result);
-        // })
-
-        app.patch('/tasks/:id', async (req, res) => {
-            const id = req.params.id;
-            const { status } = req.body;
-          
-            const updatedTask = await taskCollection.findOneAndUpdate(
-              { _id: new ObjectId(id) },
-              { $set: { status } },
-              { returnOriginal: false }
-            );
-          
-            res.send(updatedTask.value);
-          });
-
+       //update task
+       app.put('/tasks/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const task = req.body;
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+                title: task.title,
+                description: task.description,
+                deadline: task.deadline,
+                priority: task.priority,
+                status: task.status,
+                email: task.email  // Assuming you want to keep the email with the task
+            },
+        };
+        const result = await taskCollection.updateOne(query, updateDoc, options);
+        res.send(result);
+    });
+    
 
         //delete task by id
         app.delete('/tasks/:id', async (req, res) => {
