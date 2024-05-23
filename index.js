@@ -7,7 +7,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // midware
 app.use(cors({
-    origin:[
+    origin: [
         process.env.LOCAL_CLIENT,
         process.env.CLIENT
     ],
@@ -63,26 +63,40 @@ async function run() {
             }
         })
 
-       //update task
-       app.put('/tasks/:id', async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const task = req.body;
-        const options = { upsert: true };
-        const updateDoc = {
-            $set: {
-                title: task.title,
-                description: task.description,
-                deadline: task.deadline,
-                priority: task.priority,
-                status: task.status,
-                email: task.email  // Assuming you want to keep the email with the task
-            },
-        };
-        const result = await taskCollection.updateOne(query, updateDoc, options);
-        res.send(result);
-    });
-    
+        //update task
+        app.put('/tasks/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const task = req.body;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    title: task.title,
+                    description: task.description,
+                    deadline: task.deadline,
+                    priority: task.priority,
+                    status: task.status,
+                    email: task.email  // Assuming you want to keep the email with the task
+                },
+            };
+            const result = await taskCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        });
+
+
+        //update status for drop and drag
+        app.patch('/tasks/:id', async (req, res) => {
+            const id = req.params.id;
+            const { status } = req.body;
+
+            const updatedTask = await taskCollection.findOneAndUpdate(
+                { _id: new ObjectId(id) },
+                { $set: { status } },
+                { returnOriginal: false }
+            );
+
+            res.send(updatedTask.value);
+        });
 
         //delete task by id
         app.delete('/tasks/:id', async (req, res) => {
